@@ -28,8 +28,8 @@ public class LoginActivity extends AppCompatActivity {
 
         btnLogin.setOnClickListener(v -> {
             SharedPreferences prefs = getSharedPreferences("UserPrefs", MODE_PRIVATE);
-            String savedUser = prefs.getString("user", "");
-            String savedPass = prefs.getString("pass", "");
+            String savedUser = prefs.getString("user", "long");
+            String savedPass = prefs.getString("pass", "123");
 
             if (etUsername.getText().toString().equals(savedUser) &&
                     etPassword.getText().toString().equals(savedPass)) {

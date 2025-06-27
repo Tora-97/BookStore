@@ -9,6 +9,7 @@ import android.widget.*;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,6 +26,7 @@ public class HomeActivity extends AppCompatActivity {
         lvProducts = findViewById(R.id.lvProducts);
         EditText etSearch = findViewById(R.id.etSearch);
         Button btnCart = findViewById(R.id.btnCart);
+
         etSearch.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
 
         productList = new ArrayList<>();
@@ -35,7 +37,7 @@ public class HomeActivity extends AppCompatActivity {
         productList.add(new Product("Lập trình Python", "Từ cơ bản đến nâng cao", 115000, R.drawable.python_book));
         productList.add(new Product("Tuổi trẻ đáng giá bao nhiêu", "Truyền cảm hứng sống tích cực", 89000, R.drawable.tuoitre));
 
-        adapter = new ProductAdapter(this, productList);
+        adapter = new ProductAdapter(this, new ArrayList<>(productList));
         lvProducts.setAdapter(adapter);
 
         etSearch.addTextChangedListener(new TextWatcher() {
@@ -44,18 +46,22 @@ public class HomeActivity extends AppCompatActivity {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                String query = s.toString().toLowerCase().trim();
+                String rawQuery = s.toString().toLowerCase();
+                String query = removeAccent(rawQuery);
+
                 List<Product> filtered = new ArrayList<>();
-                if (query.isEmpty()) {
-                    filtered.addAll(productList);
-                } else {
-                    for (Product p : productList) {
-                        if (p.getName().toLowerCase().contains(query)) {
-                            filtered.add(p);
-                        }
+                for (Product p : productList) {
+                    String name = removeAccent(p.getName().toLowerCase());
+                    if (name.contains(query)) {
+                        filtered.add(p);
                     }
                 }
-                adapter.filterList(filtered);
+
+                if (query.isEmpty()) {
+                    adapter.updateList(productList);
+                } else {
+                    adapter.updateList(filtered);
+                }
             }
         });
 
@@ -68,5 +74,11 @@ public class HomeActivity extends AppCompatActivity {
             i.putExtra("product", adapter.getItem(position));
             startActivity(i);
         });
+    }
+
+    private String removeAccent(String text) {
+        if (text == null) return "";
+        String normalized = Normalizer.normalize(text, Normalizer.Form.NFD);
+        return normalized.replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
     }
 }

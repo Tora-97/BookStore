@@ -17,7 +17,7 @@ public class ProductAdapter extends ArrayAdapter<Product> {
     public ProductAdapter(Context context, List<Product> list) {
         super(context, 0, list);
         this.context = context;
-        this.productList = new ArrayList<>(list);
+        this.productList = list;
     }
 
     private String formatPrice(double price) {
@@ -60,4 +60,10 @@ public class ProductAdapter extends ArrayAdapter<Product> {
     public Product getItem(int position) {
         return productList.get(position);
     }
+    public void updateList(List<Product> newList) {
+        productList.clear();
+        productList.addAll(newList);
+        notifyDataSetChanged();
+    }
+
 }
