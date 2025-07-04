@@ -1,21 +1,29 @@
 package com.example.myapplication;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
+
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.Volley;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
+import org.json.JSONArray;
 
 public class LoginActivity extends AppCompatActivity {
     EditText etUsername, etPassword;
     Button btnLogin;
+    ProgressDialog progressDialog;
+
+    String API_URL = "https://fakestoreapi.com/users";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,24 +32,61 @@ public class LoginActivity extends AppCompatActivity {
 
         etUsername = findViewById(R.id.etUsername);
         etPassword = findViewById(R.id.etPassword);
-            btnLogin = findViewById(R.id.btnLogin);
+        btnLogin   = findViewById(R.id.btnLogin);
 
-        btnLogin.setOnClickListener(v -> {
-            SharedPreferences prefs = getSharedPreferences("UserPrefs", MODE_PRIVATE);
-            String savedUser = prefs.getString("user", "long");
-            String savedPass = prefs.getString("pass", "123");
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage("Đang kiểm tra...");
 
-            if (etUsername.getText().toString().equals(savedUser) &&
-                    etPassword.getText().toString().equals(savedPass)) {
-                startActivity(new Intent(this, HomeActivity.class));
+        btnLogin.setOnClickListener(view -> {
+            String username = etUsername.getText().toString().trim();
+            String password = etPassword.getText().toString().trim();
+
+            if (username.isEmpty() || password.isEmpty()) {
+                Toast.makeText(this, "Vui lòng nhập đầy đủ thông tin", Toast.LENGTH_SHORT).show();
             } else {
-                Toast.makeText(this, "Sai thông tin", Toast.LENGTH_SHORT).show();
+                loginWithAPI(username, password);
             }
+        });
+    }
 
-        });
-        Button btnToRegister = findViewById(R.id.btnToRegister);
-        btnToRegister.setOnClickListener(v -> {
-            startActivity(new Intent(this, RegisterActivity.class));
-        });
+    private void loginWithAPI(String username, String password) {
+        progressDialog.show();
+
+        RequestQueue queue = Volley.newRequestQueue(this);
+        JsonArrayRequest request = new JsonArrayRequest(Request.Method.GET, API_URL, null,
+                response -> {
+                    progressDialog.dismiss();
+                    boolean isAuthenticated = false;
+
+                    try {
+                        for (int i = 0; i < response.length(); i++) {
+                            JsonObject user = JsonParser.parseString(response.get(i).toString()).getAsJsonObject();
+                            String userApi = user.get("username").getAsString();
+                            String passApi = user.get("password").getAsString();
+
+                            if (username.equals(userApi) && password.equals(passApi)) {
+                                isAuthenticated = true;
+                                break;
+                            }
+                        }
+
+                        if (isAuthenticated) {
+                            Toast.makeText(this, "Đăng nhập thành công", Toast.LENGTH_SHORT).show();
+                            startActivity(new Intent(this, HomeActivity.class));
+                            finish();
+                        } else {
+                            Toast.makeText(this, "Sai tài khoản hoặc mật khẩu", Toast.LENGTH_SHORT).show();
+                        }
+
+                    } catch (Exception e) {
+                        Toast.makeText(this, "Lỗi xử lý dữ liệu", Toast.LENGTH_SHORT).show();
+                    }
+                },
+                error -> {
+                    progressDialog.dismiss();
+                    Toast.makeText(this, "Lỗi kết nối: " + error.getMessage(), Toast.LENGTH_LONG).show();
+                });
+
+        queue.add(request);
     }
 }
