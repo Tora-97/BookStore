@@ -1,4 +1,8 @@
 package com.example.myapplication;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.*;
+import androidx.appcompat.app.AppCompatActivity;
 
 import org.junit.Test;
 

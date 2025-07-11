@@ -1,10 +1,16 @@
 package com.example.myapplication;
-
-import android.app.ProgressDialog;
-import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.*;
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.Bundle;
+import android.text.InputType;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -16,12 +22,10 @@ import com.android.volley.toolbox.Volley;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-import org.json.JSONArray;
-
 public class LoginActivity extends AppCompatActivity {
     EditText etUsername, etPassword;
-    Button btnLogin;
-    ProgressDialog progressDialog;
+    Button btnLogin, btnToRegister;
+    ImageView ivTogglePassword;
 
     String API_URL = "https://fakestoreapi.com/users";
 
@@ -32,10 +36,21 @@ public class LoginActivity extends AppCompatActivity {
 
         etUsername = findViewById(R.id.etUsername);
         etPassword = findViewById(R.id.etPassword);
-        btnLogin   = findViewById(R.id.btnLogin);
+        btnLogin = findViewById(R.id.btnLogin);
+        btnToRegister = findViewById(R.id.btnToRegister);
+        ivTogglePassword = findViewById(R.id.ivTogglePassword);
 
-        progressDialog = new ProgressDialog(this);
-        progressDialog.setMessage("Đang kiểm tra...");
+        // Toggle password visibility
+        ivTogglePassword.setOnClickListener(v -> {
+            if (etPassword.getInputType() == (InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD)) {
+                etPassword.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
+                ivTogglePassword.setImageResource(R.drawable.ic_eye_off);
+            } else {
+                etPassword.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+                ivTogglePassword.setImageResource(R.drawable.ic_eye);
+            }
+            etPassword.setSelection(etPassword.getText().length());
+        });
 
         btnLogin.setOnClickListener(view -> {
             String username = etUsername.getText().toString().trim();
@@ -44,18 +59,36 @@ public class LoginActivity extends AppCompatActivity {
             if (username.isEmpty() || password.isEmpty()) {
                 Toast.makeText(this, "Vui lòng nhập đầy đủ thông tin", Toast.LENGTH_SHORT).show();
             } else {
-                loginWithAPI(username, password);
+                if (!loginOffline(username, password)) {
+                    loginWithAPI(username, password);
+                }
             }
         });
+
+        btnToRegister.setOnClickListener(view -> {
+            startActivity(new Intent(this, RegisterActivity.class));
+        });
+    }
+    private boolean loginOffline(String username, String password) {
+        SharedPreferences prefs = getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
+        String savedUsername = prefs.getString("username", "");
+        String savedPassword = prefs.getString("password", "");
+
+        if (username.equals(savedUsername) && password.equals(savedPassword)) {
+            Toast.makeText(this, "Đăng nhập thành công (Offline)", Toast.LENGTH_SHORT).show();
+            startActivity(new Intent(this, HomeActivity.class));
+            finish();
+            return true;
+        }
+        return false;
     }
 
     private void loginWithAPI(String username, String password) {
-        progressDialog.show();
-
+        Toast.makeText(this, "Đang kiểm tra với API...", Toast.LENGTH_SHORT).show();
         RequestQueue queue = Volley.newRequestQueue(this);
+
         JsonArrayRequest request = new JsonArrayRequest(Request.Method.GET, API_URL, null,
                 response -> {
-                    progressDialog.dismiss();
                     boolean isAuthenticated = false;
 
                     try {
@@ -71,7 +104,7 @@ public class LoginActivity extends AppCompatActivity {
                         }
 
                         if (isAuthenticated) {
-                            Toast.makeText(this, "Đăng nhập thành công", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(this, "Đăng nhập thành công (API)", Toast.LENGTH_SHORT).show();
                             startActivity(new Intent(this, HomeActivity.class));
                             finish();
                         } else {
@@ -79,13 +112,11 @@ public class LoginActivity extends AppCompatActivity {
                         }
 
                     } catch (Exception e) {
-                        Toast.makeText(this, "Lỗi xử lý dữ liệu", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, "Lỗi xử lý dữ liệu API", Toast.LENGTH_SHORT).show();
                     }
                 },
-                error -> {
-                    progressDialog.dismiss();
-                    Toast.makeText(this, "Lỗi kết nối: " + error.getMessage(), Toast.LENGTH_LONG).show();
-                });
+                error -> Toast.makeText(this, "Lỗi kết nối API: " + error.getMessage(), Toast.LENGTH_LONG).show()
+        );
 
         queue.add(request);
     }

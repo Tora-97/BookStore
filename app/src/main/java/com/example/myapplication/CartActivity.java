@@ -1,9 +1,13 @@
 package com.example.myapplication;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.*;
+import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
-import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -28,26 +32,10 @@ public class CartActivity extends AppCompatActivity {
         lvCart.setAdapter(adapter);
 
         updateTotal();
-
-        findViewById(R.id.btnBack).setOnClickListener(v -> finish());
-
-        findViewById(R.id.btnClearCart).setOnClickListener(v -> {
-            Cart.cartItems.clear();
-            adapter.notifyDataSetChanged();
-            updateTotal();
-        });
     }
 
     private void updateTotal() {
-        double total = 0;
-        for (Product p : Cart.cartItems) {
-            total += p.getPrice();
-        }
-        tvTotal.setText("Tổng: " + formatPrice(total));
-    }
-
-    private String formatPrice(double price) {
-        int priceInt = (int) price;
-        return String.format("%,d", priceInt).replace(',', '.') + " VND";
+        int total = Cart.cartItems.size(); // Tạm tính theo số lượng
+        tvTotal.setText("Số sách trong giỏ: " + total);
     }
 }
