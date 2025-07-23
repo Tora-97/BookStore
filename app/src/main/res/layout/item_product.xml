@@ -1,55 +1,54 @@
-<?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_margin="8dp"
-    card_view:cardCornerRadius="8dp"
-    card_view:cardElevation="4dp"
-    android:background="@android:color/white">
-    <RelativeLayout
-        android:layout_width="match_parent"
+    android:layout_height="100dp"
+    android:background="@android:color/white"
+    android:padding="12dp"
+    android:elevation="2dp"
+    android:layout_margin="8dp">
+
+    <ImageView
+        android:id="@+id/ivImage"
+        android:layout_width="80dp"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:layout_alignParentStart="true" />
+
+    <TextView
+        android:id="@+id/tvName"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:padding="12dp">
+        android:text="Tên sách"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:maxLines="1"
+        android:ellipsize="end"
+        android:textColor="#000000"
+        android:layout_toEndOf="@id/ivImage"
+        android:layout_marginStart="12dp"
+        android:layout_alignTop="@id/ivImage" />
 
-        <ImageView
-            android:id="@+id/ivImage"
-            android:layout_width="80dp"
-            android:layout_height="100dp"
-            android:scaleType="centerCrop"
-            android:layout_alignParentStart="true" />
+    <TextView
+        android:id="@+id/tvAuthor"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Tác giả"
+        android:textSize="14sp"
+        android:maxLines="1"
+        android:ellipsize="end"
+        android:textColor="#666666"
+        android:layout_below="@id/tvName"
+        android:layout_toEndOf="@id/ivImage"
+        android:layout_marginStart="12dp" />
 
-        <TextView
-            android:id="@+id/tvName"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Tên sách"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:textColor="#000000"
-            android:layout_toEndOf="@id/ivImage"
-            android:layout_marginStart="12dp"
-            android:layout_alignTop="@id/ivImage" />
+    <ImageButton
+        android:id="@+id/ivAddToCart"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:src="@drawable/ic_add"
+        android:background="@android:color/transparent"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:scaleType="centerInside"
+        android:contentDescription="Thêm vào giỏ" />
 
-        <TextView
-            android:id="@+id/tvAuthor"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Tác giả"
-            android:textSize="14sp"
-            android:textColor="#666666"
-            android:layout_below="@id/tvName"
-            android:layout_toEndOf="@id/ivImage"
-            android:layout_marginStart="12dp" />
-
-        <ImageButton
-            android:id="@+id/ivAddToCart"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:src="@drawable/ic_add"
-            android:background="@android:color/transparent"
-            android:layout_alignParentEnd="true"
-            android:layout_centerVertical="true"
-            android:contentDescription="Thêm vào giỏ" />
-    </RelativeLayout>
-</androidx.cardview.widget.CardView>
+</RelativeLayout>

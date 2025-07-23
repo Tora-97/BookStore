@@ -2,14 +2,15 @@ package com.example.myapplication;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.widget.SearchView;
+import android.util.Log;
+import android.view.inputmethod.EditorInfo;
+import android.widget.EditText;
+import android.widget.GridView;
+import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -23,130 +24,122 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class HomeActivity extends AppCompatActivity {
-    RecyclerView recyclerView;
-    ProductAdapter productAdapter;
-    List<Product> productList = new ArrayList<>();
-    String API_URL = "https://openlibrary.org/subjects/fiction.json?limit=20";
+
+    private GridView gridBooks;
+    private ProductAdapter productAdapter;
+    private final List<Product> productList = new ArrayList<>();
+
+    private TextView btnAll, btnNovel, btnBusiness;
+    private EditText etSearch;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
-        recyclerView = findViewById(R.id.recyclerView);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        gridBooks = findViewById(R.id.gridBooks);
+        btnAll = findViewById(R.id.btnAll);
+        btnNovel = findViewById(R.id.btnNovel);
+        btnBusiness = findViewById(R.id.btnBusiness);
+        etSearch = findViewById(R.id.etSearch);
 
         productAdapter = new ProductAdapter(this, productList);
-        recyclerView.setAdapter(productAdapter);
+        gridBooks.setAdapter(productAdapter);
 
-        fetchBooksFromAPI();
+        gridBooks.setOnItemClickListener((parent, view, position, id) -> {
+            Product selectedProduct = productList.get(position);
+            Intent intent = new Intent(HomeActivity.this, BookDetailActivity.class);
+            intent.putExtra("product", selectedProduct); // truyền nguyên Product
+            Log.d("HomeActivity", "Selected product: " + selectedProduct.getName());
+            startActivity(intent);
+        });
+
+        ImageButton btnCart = findViewById(R.id.btnCart);
+        btnCart.setOnClickListener(v -> {
+            Intent intent = new Intent(HomeActivity.this, CartActivity.class);
+            startActivity(intent);
+        });
+
+        btnAll.setOnClickListener(v -> fetchBooksByCategory("all"));
+        btnNovel.setOnClickListener(v -> fetchBooksByCategory("fiction"));
+        btnBusiness.setOnClickListener(v -> {
+            Toast.makeText(this, "Danh mục chưa có sách, thử Tiểu thuyết!", Toast.LENGTH_SHORT).show();
+            btnNovel.performClick();
+        });
+
+        etSearch.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                fetchBooks(etSearch.getText().toString());
+                return true;
+            }
+            return false;
+        });
+
+        fetchBooksByCategory("all");
     }
 
-    private void fetchBooksFromAPI() {
+    private void fetchBooksByCategory(String category) {
+        String url = category.equals("all")
+                ? "https://openlibrary.org/subjects/science.json?limit=20"
+                : "https://openlibrary.org/subjects/" + category + ".json?limit=20";
+        loadBooksFromAPI(url);
+    }
+
+    private void fetchBooks(String query) {
+        String url = "https://openlibrary.org/search.json?q=" + query.replace(" ", "+");
+        loadBooksFromAPI(url);
+    }
+
+    private void loadBooksFromAPI(String url) {
+        productList.clear();
         RequestQueue queue = Volley.newRequestQueue(this);
 
-        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, API_URL, null,
+        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null,
                 response -> {
                     try {
-                        JSONArray worksArray = response.getJSONArray("works");
+                        JSONArray array = response.has("works")
+                                ? response.getJSONArray("works")
+                                : response.getJSONArray("docs");
 
-                        for (int i = 0; i < worksArray.length(); i++) {
-                            JSONObject bookObj = worksArray.getJSONObject(i);
-                            String title = bookObj.getString("title");
+                        for (int i = 0; i < array.length(); i++) {
+                            JSONObject bookObj = array.getJSONObject(i);
+                            String title = bookObj.optString("title", "Không tên");
                             String author = "Không rõ";
 
                             if (bookObj.has("authors")) {
                                 JSONArray authors = bookObj.getJSONArray("authors");
                                 if (authors.length() > 0) {
-                                    author = authors.getJSONObject(0).getString("name");
+                                    author = authors.getJSONObject(0).optString("name", "Không rõ");
                                 }
+                            } else if (bookObj.has("author_name")) {
+                                author = bookObj.getJSONArray("author_name").optString(0, "Không rõ");
                             }
 
                             String coverUrl = "";
                             if (bookObj.has("cover_id")) {
                                 int coverId = bookObj.getInt("cover_id");
-                                coverUrl = "https://covers.openlibrary.org/b/id/" + coverId + "-L.jpg";
+                                coverUrl = "https://covers.openlibrary.org/b/id/" + coverId + "-M.jpg";
+                            } else if (bookObj.has("cover_i")) {
+                                String coverId = bookObj.optString("cover_i");
+                                coverUrl = "https://covers.openlibrary.org/b/id/" + coverId + "-M.jpg";
                             }
 
-                            Product product = new Product(title, author, coverUrl, "Không có mô tả", 0);
-                            productList.add(product);
+                            productList.add(new Product(title, author, coverUrl, "Không có mô tả", R.drawable.ic_bookshelf, 0));
                         }
 
                         productAdapter.notifyDataSetChanged();
 
                     } catch (Exception e) {
                         Toast.makeText(this, "Lỗi xử lý dữ liệu", Toast.LENGTH_SHORT).show();
+                        Log.e("HomeActivity", "Error parsing JSON: " + e.getMessage());
                     }
                 },
-                error -> Toast.makeText(this, "Lỗi kết nối API", Toast.LENGTH_SHORT).show());
-
-        queue.add(request);
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_home, menu);
-
-        MenuItem searchItem = menu.findItem(R.id.action_search);
-        SearchView searchView = (SearchView) searchItem.getActionView();
-
-        searchView.setQueryHint("Tìm sách...");
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                fetchBooks(query);
-                return false;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                return false;
-            }
-        });
-
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.action_cart) {
-            startActivity(new Intent(this, CartActivity.class));
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    private void fetchBooks(String query) {
-        String url = "https://openlibrary.org/search.json?q=" + query.replace(" ", "+");
-
-        RequestQueue queue = Volley.newRequestQueue(this);
-        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null,
-                response -> {
-                    List<Product> results = new ArrayList<>();
-
-                    try {
-                        JSONArray docs = response.getJSONArray("docs");
-                        for (int i = 0; i < docs.length(); i++) {
-                            JSONObject book = docs.getJSONObject(i);
-                            String title = book.optString("title");
-                            String author = book.optJSONArray("author_name") != null ?
-                                    book.getJSONArray("author_name").optString(0) : "Không rõ";
-                            String coverId = book.optString("cover_i");
-                            String coverUrl = coverId.isEmpty() ?
-                                    "" : "https://covers.openlibrary.org/b/id/" + coverId + "-M.jpg";
-
-                            results.add(new Product(title, author, coverUrl, "Không có mô tả", 0));
-                        }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-
-                    productList.clear();
-                    productList.addAll(results);
-                    productAdapter.notifyDataSetChanged();
-                },
-                error -> Toast.makeText(this, "Lỗi tải dữ liệu", Toast.LENGTH_SHORT).show()
+                error -> {
+                    Toast.makeText(this, "Lỗi kết nối API", Toast.LENGTH_SHORT).show();
+                    Log.e("HomeActivity", "Volley error: " + error.getMessage());
+                }
         );
+
         queue.add(request);
     }
 }

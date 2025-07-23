@@ -1,27 +1,20 @@
 package com.example.myapplication;
-import android.os.Bundle;
-import android.view.View;
-import android.widget.*;
-import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.text.method.PasswordTransformationMethod;
-import android.text.method.HideReturnsTransformationMethod;
 import android.util.Patterns;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 public class RegisterActivity extends AppCompatActivity {
+
     EditText etUsername, etEmail, etPassword, etConfirmPassword;
     Button btnRegister, btnToLogin;
-    ImageView ivShowPassword, ivShowConfirmPassword;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,15 +27,9 @@ public class RegisterActivity extends AppCompatActivity {
         etConfirmPassword = findViewById(R.id.etConfirmPassword);
         btnRegister = findViewById(R.id.btnRegister);
         btnToLogin = findViewById(R.id.btnToLogin);
-        ivShowPassword = findViewById(R.id.ivShowPassword);
-        ivShowConfirmPassword = findViewById(R.id.ivShowConfirmPassword);
-
-        ivShowPassword.setOnClickListener(v -> togglePasswordVisibility(etPassword, ivShowPassword));
-        ivShowConfirmPassword.setOnClickListener(v -> togglePasswordVisibility(etConfirmPassword, ivShowConfirmPassword));
 
         btnRegister.setOnClickListener(v -> {
             if (validateForm()) {
-
                 SharedPreferences prefs = getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
                 SharedPreferences.Editor editor = prefs.edit();
                 editor.putString("username", etUsername.getText().toString().trim());
@@ -50,24 +37,12 @@ public class RegisterActivity extends AppCompatActivity {
                 editor.apply();
 
                 Toast.makeText(this, "Đăng ký thành công!", Toast.LENGTH_SHORT).show();
-
                 startActivity(new Intent(this, LoginActivity.class));
                 finish();
             }
         });
 
         btnToLogin.setOnClickListener(v -> finish());
-    }
-
-    private void togglePasswordVisibility(EditText editText, ImageView imageView) {
-        if (editText.getTransformationMethod() instanceof PasswordTransformationMethod) {
-            editText.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
-            imageView.setImageResource(R.drawable.ic_eye);
-        } else {
-            editText.setTransformationMethod(PasswordTransformationMethod.getInstance());
-            imageView.setImageResource(R.drawable.ic_eye_off);
-        }
-        editText.setSelection(editText.getText().length());
     }
 
     private boolean validateForm() {

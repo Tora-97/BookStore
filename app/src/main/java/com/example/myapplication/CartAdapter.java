@@ -11,6 +11,8 @@ import android.widget.*;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.bumptech.glide.Glide;
+
 import java.util.List;
 
 public class CartAdapter extends ArrayAdapter<Product> {
@@ -45,9 +47,11 @@ public class CartAdapter extends ArrayAdapter<Product> {
 
         tvName.setText(product.getName());
         tvPrice.setText(formatPrice(product.getPrice()));
-        ivImage.setImageResource(product.getImageResId());
+        Glide.with(context)
+                .load(product.getImageUrl())
+                .placeholder(R.drawable.ic_bookshelf)
+                .into(ivImage);
 
-        // Set tag để btnDelete biết chính xác vị trí item
         btnDelete.setTag(position);
         btnDelete.setOnClickListener(v -> {
             int pos = (int) v.getTag();

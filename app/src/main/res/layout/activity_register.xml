@@ -1,11 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="24dp"
+    android:orientation="vertical"
     android:gravity="center"
-    android:background="@drawable/bg_gradient">
+    android:background="@android:color/white"
+    tools:context=".RegisterActivity">
 
     <ImageView
         android:layout_width="100dp"
@@ -24,104 +27,80 @@
         android:layout_marginTop="16dp"
         android:layout_gravity="center" />
 
-    <EditText
-        android:id="@+id/etUsername"
+    <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Tên đăng nhập"
-        android:drawablePadding="8dp"
-        android:padding="12dp"
         android:layout_marginTop="32dp"
-        android:textSize="16sp"
-        android:background="@drawable/bg_input" />
+        android:hint="Tên đăng nhập">
 
-    <EditText
-        android:id="@+id/etEmail"
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etUsername"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="16sp" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Email"
-        android:inputType="textEmailAddress"
-        android:drawablePadding="8dp"
-        android:padding="12dp"
         android:layout_marginTop="16dp"
-        android:textSize="16sp"
-        android:background="@drawable/bg_input" />
+        android:hint="Email">
 
-    <!-- Mật khẩu với icon mắt -->
-    <RelativeLayout
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etEmail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textEmailAddress"
+            android:textSize="16sp" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp">
+        android:layout_marginTop="16dp"
+        android:hint="Mật khẩu"
+        app:endIconMode="password_toggle">
 
-        <EditText
+        <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/etPassword"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Mật khẩu"
             android:inputType="textPassword"
-            android:drawablePadding="8dp"
-            android:padding="12dp"
-            android:textSize="16sp"
-            android:background="@drawable/bg_input" />
+            android:textSize="16sp" />
+    </com.google.android.material.textfield.TextInputLayout>
 
-        <ImageView
-            android:id="@+id/ivShowPassword"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_alignParentEnd="true"
-            android:layout_centerVertical="true"
-            android:src="@drawable/ic_eye"
-            android:padding="4dp" />
-    </RelativeLayout>
-
-    <!-- Xác nhận mật khẩu với icon mắt -->
-    <RelativeLayout
+    <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp">
+        android:layout_marginTop="16dp"
+        android:hint="Xác nhận mật khẩu"
+        app:endIconMode="password_toggle">
 
-        <EditText
+        <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/etConfirmPassword"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Xác nhận mật khẩu"
             android:inputType="textPassword"
-            android:drawablePadding="8dp"
-            android:padding="12dp"
-            android:textSize="16sp"
-            android:background="@drawable/bg_input" />
-
-        <ImageView
-            android:id="@+id/ivShowConfirmPassword"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_alignParentEnd="true"
-            android:layout_centerVertical="true"
-            android:src="@drawable/ic_eye"
-            android:padding="4dp" />
-    </RelativeLayout>
+            android:textSize="16sp" />
+    </com.google.android.material.textfield.TextInputLayout>
 
     <Button
         android:id="@+id/btnRegister"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Đăng ký"
-        android:textAllCaps="false"
         android:layout_marginTop="24dp"
-        android:paddingHorizontal="32dp"
         android:backgroundTint="@color/purple_500"
         android:textColor="@android:color/white"
-        android:layout_gravity="center" />
+        android:textAllCaps="false" />
 
     <Button
         android:id="@+id/btnToLogin"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Đã có tài khoản? Đăng nhập"
-        android:textAllCaps="false"
         android:layout_marginTop="12dp"
         android:backgroundTint="@color/teal_200"
         android:textColor="@android:color/white"
-        android:layout_gravity="center" />
-
+        android:textAllCaps="false" />
 </LinearLayout>

@@ -10,7 +10,7 @@ public class Product implements Serializable {
     private int imageResId;
     private double price;
 
-    public Product(String name, String author, String imageUrl, String description, int imageResId) {
+    public Product(String name, String author, String imageUrl, String description, int imageResId, double price) {
         this.name = name;
         this.author = author;
         this.imageUrl = imageUrl;

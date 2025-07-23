@@ -1,8 +1,4 @@
 package com.example.myapplication;
-import android.os.Bundle;
-import android.view.View;
-import android.widget.*;
-import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -10,7 +6,6 @@ import android.os.Bundle;
 import android.text.InputType;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -23,9 +18,9 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 public class LoginActivity extends AppCompatActivity {
+
     EditText etUsername, etPassword;
     Button btnLogin, btnToRegister;
-    ImageView ivTogglePassword;
 
     String API_URL = "https://fakestoreapi.com/users";
 
@@ -38,19 +33,6 @@ public class LoginActivity extends AppCompatActivity {
         etPassword = findViewById(R.id.etPassword);
         btnLogin = findViewById(R.id.btnLogin);
         btnToRegister = findViewById(R.id.btnToRegister);
-        ivTogglePassword = findViewById(R.id.ivTogglePassword);
-
-        // Toggle password visibility
-        ivTogglePassword.setOnClickListener(v -> {
-            if (etPassword.getInputType() == (InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD)) {
-                etPassword.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
-                ivTogglePassword.setImageResource(R.drawable.ic_eye_off);
-            } else {
-                etPassword.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-                ivTogglePassword.setImageResource(R.drawable.ic_eye);
-            }
-            etPassword.setSelection(etPassword.getText().length());
-        });
 
         btnLogin.setOnClickListener(view -> {
             String username = etUsername.getText().toString().trim();
@@ -69,6 +51,7 @@ public class LoginActivity extends AppCompatActivity {
             startActivity(new Intent(this, RegisterActivity.class));
         });
     }
+
     private boolean loginOffline(String username, String password) {
         SharedPreferences prefs = getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
         String savedUsername = prefs.getString("username", "");

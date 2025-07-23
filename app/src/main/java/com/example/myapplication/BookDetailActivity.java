@@ -1,17 +1,8 @@
 package com.example.myapplication;
+
 import android.os.Bundle;
-import android.view.View;
 import android.widget.*;
 import androidx.appcompat.app.AppCompatActivity;
-
-import android.os.Bundle;
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.Toast;
-
-import androidx.appcompat.app.AppCompatActivity;
-
 import com.squareup.picasso.Picasso;
 
 public class BookDetailActivity extends AppCompatActivity {
@@ -30,21 +21,35 @@ public class BookDetailActivity extends AppCompatActivity {
         tvDescription = findViewById(R.id.tvDescription);
         btnAddToCart = findViewById(R.id.btnAddToCart);
 
-        Product product = (Product) getIntent().getSerializableExtra("product");
+        String title = getIntent().getStringExtra("name");
+        String author = getIntent().getStringExtra("author");
+        String imageUrl = getIntent().getStringExtra("cover");
+        String description = getIntent().getStringExtra("description");
+        double price = getIntent().getDoubleExtra("price", 0);
 
-        tvTitle.setText(product.getName());
-        tvAuthor.setText(product.getAuthor());
-        tvDescription.setText(product.getDescription());
+        if (title == null || author == null || description == null) {
+            Toast.makeText(this, "Không có dữ liệu sách", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
 
-        if (!product.getImageUrl().isEmpty()) {
-            Picasso.get().load(product.getImageUrl()).into(ivCover);
-        } else {
+        tvTitle.setText(title);
+        tvAuthor.setText(author);
+        tvDescription.setText(description);
+
+        if (imageUrl == null || imageUrl.isEmpty()) {
             ivCover.setImageResource(R.drawable.ic_bookshelf);
+        } else {
+            Picasso.get().load(imageUrl).placeholder(R.drawable.ic_bookshelf).into(ivCover);
         }
 
         btnAddToCart.setOnClickListener(v -> {
+            Product product = new Product(title, author, imageUrl, description, R.drawable.ic_bookshelf, price);
             Cart.addToCart(product);
-            Toast.makeText(this, "Đã thêm vào giỏ", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Đã thêm vào giỏ hàng", Toast.LENGTH_SHORT).show();
         });
+
+        TextView btnBack = findViewById(R.id.btnBack);
+        btnBack.setOnClickListener(v -> finish());
     }
 }

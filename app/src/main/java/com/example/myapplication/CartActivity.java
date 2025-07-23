@@ -1,10 +1,8 @@
 package com.example.myapplication;
-import android.os.Bundle;
-import android.view.View;
-import android.widget.*;
-import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -16,6 +14,8 @@ public class CartActivity extends AppCompatActivity {
     TextView tvTotal;
     CartAdapter adapter;
 
+    Button btnBack, btnClearCart, btnCheckout;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -23,6 +23,10 @@ public class CartActivity extends AppCompatActivity {
 
         lvCart = findViewById(R.id.lvCart);
         tvTotal = findViewById(R.id.tvTotal);
+
+        btnBack = findViewById(R.id.btnBack);
+        btnClearCart = findViewById(R.id.btnClearCart);
+        btnCheckout = findViewById(R.id.btnCheckout);
 
         adapter = new CartAdapter(this, Cart.cartItems, position -> {
             Cart.cartItems.remove(position);
@@ -32,10 +36,34 @@ public class CartActivity extends AppCompatActivity {
         lvCart.setAdapter(adapter);
 
         updateTotal();
+
+        btnBack.setOnClickListener(v -> {
+            finish();
+        });
+
+        btnClearCart.setOnClickListener(v -> {
+            Cart.cartItems.clear();
+            adapter.notifyDataSetChanged();
+            updateTotal();
+            Toast.makeText(this, "Đã xoá toàn bộ giỏ hàng", Toast.LENGTH_SHORT).show();
+        });
+
+        btnCheckout.setOnClickListener(v -> {
+            if (Cart.cartItems.isEmpty()) {
+                Toast.makeText(this, "Giỏ hàng trống!", Toast.LENGTH_SHORT).show();
+            } else {
+                Intent intent = new Intent(this, CheckoutActivity.class);
+                startActivity(intent);
+            }
+        });
     }
 
     private void updateTotal() {
-        int total = Cart.cartItems.size(); // Tạm tính theo số lượng
-        tvTotal.setText("Số sách trong giỏ: " + total);
+        int total = 0;
+        for (Product p : Cart.cartItems) {
+            total += p.getPrice(); // tính tổng tiền
+        }
+        tvTotal.setText("Tổng: " + total + " VND");
     }
+
 }
